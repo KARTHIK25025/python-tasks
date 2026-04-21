@@ -1,0 +1,9 @@
+Student Dictionary:
+{'Anand': 67, 'Babu': 45, 'Karthik': 82, 'vamsi': 39, 'dheeraj': 55}
+
+Students scoring above 50:
+Anand
+Karthik
+dheeraj
+
+Average Marks: 57

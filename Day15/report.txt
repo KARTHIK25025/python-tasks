@@ -1,0 +1,10 @@
+Student Report
+
+     Name  Marks Grade
+Student_1     62     C
+Student_2     45  Fail
+Student_3     31  Fail
+Student_4     88     B
+Student_5     74     C
+
+Average Marks: 60
