@@ -1,0 +1,2 @@
+Today I studied Python
+File handling is easy
