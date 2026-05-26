@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2 class="title">To-Do Dashboard</h2>
+    
+    <div class="container">
+        <form id="todo-form">
+            <input type="text" id="todo-input" placeholder="New task..." required>
+            <button type="submit">Add</button>
+        </form>
+
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script>
+        const API = "/api/todos";
+        
+        async function loadTodos() {
+            const res = await fetch(API);
+            const todos = await res.json();
+            document.getElementById("todo-list").innerHTML = todos.map(t => `
+                <li>
+                    <span class="${t.completed ? "completed" : ""}" onclick="toggle(${t.id})">
+                        ${t.title}
+                    </span>
+                    <button onclick="del(${t.id})">Delete</button>
+                </li>
+            `).join("");
+        }
+
+        document.getElementById("todo-form").onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById("todo-input");
+            await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: input.value })
+            });
+            input.value = "";
+            loadTodos();
+        };
+
+        async function toggle(id) { await fetch(`${API}/${id}`, { method: "PUT" }); loadTodos(); }
+        async function del(id) { await fetch(`${API}/${id}`, { method: "DELETE" }); loadTodos(); }
+
+        // Load tasks when the page opens
+        loadTodos();
+    </script>
+</body>
+</html>

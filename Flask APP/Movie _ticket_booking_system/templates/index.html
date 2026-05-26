@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Movie Booking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🎟️ Multi-Screen Booking Dashboard</h1>
+        
+        <div class="section">
+            <h2>1. Add a Movie</h2>
+            <input type="text" id="movieName" placeholder="Movie Name">
+            <input type="text" id="movieGenre" placeholder="Genre">
+            <button onclick="addMovie()">Add Movie</button>
+        </div>
+
+        <div class="section">
+            <h2>2. Schedule a Show</h2>
+            <p><i>Note: Screens 1 and 2 are pre-loaded.</i></p>
+            <input type="number" id="showMovieId" placeholder="Movie ID (e.g., 1)">
+            <input type="number" id="showScreenId" placeholder="Screen ID (1 or 2)">
+            <input type="date" id="showDate">
+            <input type="time" id="showTime">
+            <button onclick="scheduleShow()">Schedule Show</button>
+        </div>
+
+        <div class="section">
+            <h2>3. Book Specific Seats</h2>
+            <input type="number" id="bookShowId" placeholder="Show ID">
+            <input type="text" id="bookSeats" placeholder="Seat Numbers (e.g., 12, 13, 14)">
+            <button onclick="bookTicket()">Book Seats</button>
+            
+            <input type="number" id="cancelBookingId" placeholder="Booking ID to Cancel" style="margin-top:15px;">
+            <button class="danger-btn" onclick="cancelTicket()">Cancel Booking</button>
+        </div>
+
+        <div class="section">
+            <h2>System Reports</h2>
+            <button onclick="fetchAPI('/movies')">View All Movies</button>
+            <button onclick="fetchAPI('/shows')">View All Shows & Availability</button>
+            <button onclick="fetchAPI('/bookings')">View All Bookings</button>
+        </div>
+
+        <h2>API Response Output</h2>
+        <pre id="output">Waiting for action...</pre>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        async function fetchAPI(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, options);
+                const data = await response.json();
+                output.innerText = JSON.stringify(data, null, 4);
+            } catch (err) {
+                output.innerText = "Error: " + err;
+            }
+        }
+
+        function addMovie() {
+            const name = document.getElementById('movieName').value;
+            const genre = document.getElementById('movieGenre').value;
+            
+            fetchAPI('/movies', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, genre: genre })
+            });
+        }
+
+        function scheduleShow() {
+            const movieId = parseInt(document.getElementById('showMovieId').value);
+            const screenId = parseInt(document.getElementById('showScreenId').value);
+            const date = document.getElementById('showDate').value;
+            const time = document.getElementById('showTime').value;
+            
+            fetchAPI('/shows', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ movie_id: movieId, screen_id: screenId, show_date: date, show_time: time })
+            });
+        }
+
+        function bookTicket() {
+            const showId = document.getElementById('bookShowId').value;
+            const seatsInput = document.getElementById('bookSeats').value;
+            
+            // Convert comma-separated string "12, 13" into array of numbers [12, 13]
+            const seatNumbers = seatsInput.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            
+            fetchAPI('/book-ticket/' + showId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customer_name: "Web User", seat_numbers: seatNumbers })
+            });
+        }
+
+        function cancelTicket() {
+            const id = document.getElementById('cancelBookingId').value;
+            fetchAPI('/cancel-ticket/' + id, { method: 'POST' });
+        }
+    </script>
+</body>
+</html>
